@@ -1,0 +1,18 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  "#[ownership(owned)]"
+  users: [User!]!
+}
+
+type Mutation {
+  noop: Boolean!
+}
+
+type User {
+  id: Int!
+  name: String!
+}
