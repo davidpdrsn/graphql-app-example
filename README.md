@@ -12,9 +12,15 @@ This project provides a complete example how to setup a Rust GraphQL web server 
 Create a Postgres database named `graphql-app-example` with the following schema:
 
 ```
+CREATE TABLE countries (
+    id serial PRIMARY KEY,
+    name text NOT NULL
+);
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name text NOT NULL
+    name text NOT NULL,
+    country_id integer NOT NULL REFERENCES countries(id)
 );
 ```
 
