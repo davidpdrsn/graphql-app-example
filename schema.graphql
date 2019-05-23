@@ -4,8 +4,7 @@ schema {
 }
 
 type Query {
-  "#[ownership(owned)]"
-  users: [User!]!
+  users: [User!]! @juniper(ownership: "owned")
 }
 
 type Mutation {
