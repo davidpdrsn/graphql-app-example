@@ -1,6 +1,7 @@
-use crate::{models::*, DbCon, DbConPool};
+use crate::{models, DbCon, DbConPool};
 use diesel::prelude::*;
 use juniper::{Executor, FieldResult};
+use juniper_eager_loading::{prelude::*, Cache, DbEdge, EagerLoading, OptionDbEdge, VecDbEdge};
 use juniper_from_schema::graphql_schema_from_file;
 use rocket::{
     http::Status,
@@ -35,12 +36,17 @@ impl QueryFields for Query {
     fn field_users(
         &self,
         executor: &Executor<'_, Context>,
-        _trail: &QueryTrail<'_, User, Walked>,
+        trail: &QueryTrail<'_, User, Walked>,
     ) -> FieldResult<Vec<User>> {
         use crate::schema::users;
         let con = &executor.context().db_con;
-        let all_users = users::table.load::<User>(con)?;
-        Ok(all_users)
+
+        let user_models = users::table.load::<models::User>(con)?;
+        let mut users = User::from_db_models(&user_models);
+        let mut cache = Cache::new();
+        User::eager_load_all_children_for_each(&mut users, &user_models, con, trail, &mut cache)?;
+
+        Ok(users)
     }
 }
 
@@ -52,35 +58,52 @@ impl MutationFields for Mutation {
     }
 }
 
+#[derive(Clone, Debug, EagerLoading)]
+#[eager_loading(
+    model = "models::User",
+    error = "diesel::result::Error",
+    connection = "PgConnection"
+)]
+pub struct User {
+    user: models::User,
+    #[eager_loading(foreign_key_field = "country_id", model = "models::Country")]
+    country: DbEdge<Country>,
+}
+
+#[derive(Clone, Debug, EagerLoading)]
+#[eager_loading(
+    model = "models::Country",
+    error = "diesel::result::Error",
+    connection = "PgConnection"
+)]
+pub struct Country {
+    country: models::Country,
+}
+
 impl UserFields for User {
     fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<&i32> {
-        Ok(&self.id)
+        Ok(&self.user.id)
     }
 
     fn field_name(&self, _executor: &Executor<'_, Context>) -> FieldResult<&String> {
-        Ok(&self.name)
+        Ok(&self.user.name)
     }
 
     fn field_country(
         &self,
         executor: &Executor<'_, Context>,
         _trail: &QueryTrail<'_, Country, Walked>,
-    ) -> FieldResult<Country> {
-        use crate::schema::countries;
-        let con = &executor.context().db_con;
-        let country = countries::table
-            .filter(countries::id.eq(self.country_id))
-            .first::<Country>(con)?;
-        Ok(country)
+    ) -> FieldResult<&Country> {
+        Ok(self.country.try_unwrap()?)
     }
 }
 
 impl CountryFields for Country {
     fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<&i32> {
-        Ok(&self.id)
+        Ok(&self.country.id)
     }
 
     fn field_name(&self, _executor: &Executor<'_, Context>) -> FieldResult<&String> {
-        Ok(&self.name)
+        Ok(&self.country.name)
     }
 }

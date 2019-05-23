@@ -1,8 +1,8 @@
-#[allow(unused_imports)]
-use super::*;
-use crate::models::*;
+use crate::{DbConPool, rocket, models::*};
+use diesel::{prelude::*, r2d2::ConnectionManager};
 use assert_json_diff::{assert_json_eq, assert_json_include};
 use diesel_factories::{Association, Factory};
+use serde_json::{Value, json};
 
 use rocket::{
     http::{ContentType, Status},

@@ -14,7 +14,7 @@ type Mutation {
 type User {
   id: Int!
   name: String!
-  country: Country! @juniper(ownership: "owned")
+  country: Country!
 }
 
 type Country {
