@@ -12,6 +12,7 @@ juniper-from-schema = "0.2.0"
 juniper_rocket = "0.3.0"
 r2d2 = "0.8.3"
 serde_json = "1.0.39"
+dotenv = "0.14.1"
 
 [dev-dependencies]
 assert-json-diff = "1.0.0"

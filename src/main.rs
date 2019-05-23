@@ -150,6 +150,7 @@ fn post_graphql_handler(
 }
 
 fn main() {
+    dotenv::dotenv().ok();
     rocket(db_pool()).launch();
 }
 
@@ -164,7 +165,7 @@ fn rocket(db_pool: DbConPool) -> Rocket {
 }
 
 fn db_pool() -> DbConPool {
-    let database_url = "postgres://localhost/graphql-app-example";
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     r2d2::Pool::builder()
         .max_size(10)
         .build(ConnectionManager::<PgConnection>::new(database_url))
@@ -352,7 +353,7 @@ mod test {
 
     #[cfg(test)]
     fn test_db_pool() -> DbConPool {
-        let database_url = "postgres://localhost/graphql-app-example";
+        let database_url = "postgres://localhost/graphql-app-example-test";
         r2d2::Pool::builder()
             .max_size(1)
             .build(ConnectionManager::<PgConnection>::new(database_url))

@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+rm -rf ./.env || true
+echo DATABASE_URL=postgres://localhost/graphql-app-example > .env
+
+dropdb graphql-app-example || true
+createdb graphql-app-example
+diesel migration run
+
+dropdb graphql-app-example-test || true
+createdb graphql-app-example-test
+DATABASE_URL=postgres://localhost/graphql-app-example-test diesel migration run

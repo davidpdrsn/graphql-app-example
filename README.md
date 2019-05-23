@@ -9,20 +9,7 @@ This project provides a complete example how to setup a Rust GraphQL web server 
 
 ## Running the app
 
-Create a Postgres database named `graphql-app-example` with the following schema:
-
-```
-CREATE TABLE countries (
-    id serial PRIMARY KEY,
-    name text NOT NULL
-);
-
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name text NOT NULL,
-    country_id integer NOT NULL REFERENCES countries(id)
-);
-```
+Create the (postgres) database and run migrations by running `bin/setup`. We create both a development and test database.
 
 Then compile and run the app
 
@@ -31,6 +18,12 @@ $ cargo run
 ```
 
 Then go to <http://localhost:8000/graphiql>.
+
+Or run the tests with
+
+```bash
+$ cargo test
+```
 
 ## Note
 
