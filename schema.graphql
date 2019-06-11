@@ -5,6 +5,12 @@ schema {
 
 type Query {
   users: [User!]! @juniper(ownership: "owned")
+
+  userConnections(
+    after: Cursor,
+    first: Int = 20,
+    userId: Int!,
+  ): UserConnection @juniper(ownership: "owned")
 }
 
 type Mutation {
@@ -20,4 +26,23 @@ type User {
 type Country {
   id: Int!
   name: String!
+}
+
+scalar Cursor
+
+type PageInfo {
+  startCursor: Cursor
+  endCursor: Cursor
+  hasNextPage: Boolean!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  cursor: Cursor!
+  node: User!
 }

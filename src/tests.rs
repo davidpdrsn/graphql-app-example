@@ -1,8 +1,8 @@
-use crate::{DbConPool, rocket, models::*};
-use diesel::{prelude::*, r2d2::ConnectionManager};
+use crate::{models::*, rocket, DbConPool};
 use assert_json_diff::{assert_json_eq, assert_json_include};
+use diesel::{prelude::*, r2d2::ConnectionManager};
 use diesel_factories::{Association, Factory};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 use rocket::{
     http::{ContentType, Status},
