@@ -6,6 +6,7 @@ This project provides a complete example how to setup a Rust GraphQL web server 
 - [Diesel](http://diesel.rs) (database)
 - [Juniper](https://github.com/graphql-rust/juniper) (graphql)
 - [juniper-from-schema](https://github.com/davidpdrsn/juniper-from-schema) (graphql code generation)
+- [juniper-eager-loading](https://github.com/davidpdrsn/juniper-eager-loading) (eager loading to avoid N+1 query bugs)
 
 ## Running the app
 
