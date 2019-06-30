@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use diesel::query_builder::*;
 use diesel::query_dsl::methods::LoadQuery;
 use diesel::sql_types::BigInt;
-use juniper_eager_loading::impl_LoadFrom_for_diesel;
+use juniper_eager_loading::impl_load_from_for_diesel;
 
 #[derive(Queryable, Debug, Clone)]
 pub struct User {
@@ -21,7 +21,7 @@ pub struct Country {
     pub name: String,
 }
 
-impl_LoadFrom_for_diesel! {
+impl_load_from_for_diesel! {
     (
         error = diesel::result::Error,
         connection = PgConnection,
