@@ -127,7 +127,7 @@ fn user_connections(
 
 use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
 
-fn map_models_to_graphql_nodes<'a, T, M>(
+fn map_models_to_graphql_nodes<'a, T, M: Clone>(
     models: &[M],
     trail: &QueryTrail<'a, T, Walked>,
     con: &PgConnection,
