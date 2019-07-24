@@ -3,7 +3,7 @@ use assert_json_diff::{assert_json_eq, assert_json_include};
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use diesel_factories::{Association, Factory};
 use serde_json::{json, Value};
-
+use juniper::ID;
 use rocket::{
     http::{ContentType, Status},
     local::Client,
@@ -56,7 +56,7 @@ fn test_loading_user() {
             "data": {
                 "users": [
                     {
-                        "id": user.id,
+                        "id": ID::new(user.id.to_string()),
                         "name": user.name,
                     },
                 ],
@@ -98,10 +98,10 @@ fn test_loading_users_with_countries() {
             "data": {
                 "users": [
                     {
-                        "id": user.id,
+                        "id": ID::new(user.id.to_string()),
                         "name": user.name,
                         "country": {
-                            "id": country.id,
+                            "id": ID::new(country.id.to_string()),
                             "name": country.name,
                         },
                     },

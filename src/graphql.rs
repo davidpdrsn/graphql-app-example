@@ -1,7 +1,8 @@
 use crate::{models, DbCon, DbConPool};
 use diesel::prelude::*;
-use juniper::{Executor, FieldResult};
+use juniper::{Executor, FieldResult, ID};
 use juniper_eager_loading::{prelude::*, *};
+use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
 use juniper_from_schema::graphql_schema_from_file;
 use rocket::{
     http::Status,
@@ -53,11 +54,12 @@ impl QueryFields for Query {
         trail: &QueryTrail<'_, UserConnection, Walked>,
         after: Option<Cursor>,
         first: i32,
-        user_id: i32,
+        user_id: ID,
     ) -> FieldResult<Option<UserConnection>> {
         use crate::schema::users;
         let con = &executor.context().db_con;
 
+        let user_id = user_id.parse::<i32>()?;
         let user = users::table
             .filter(users::id.eq(user_id))
             .first::<models::User>(con)
@@ -125,8 +127,6 @@ fn user_connections(
     })
 }
 
-use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
-
 fn map_models_to_graphql_nodes<'a, T, M: Clone>(
     models: &[M],
     trail: &QueryTrail<'a, T, Walked>,
@@ -178,8 +178,8 @@ pub struct Country {
 }
 
 impl UserFields for User {
-    fn field_id(&self, _: &Executor<'_, Context>) -> FieldResult<&i32> {
-        Ok(&self.user.id)
+    fn field_id(&self, _: &Executor<'_, Context>) -> FieldResult<ID> {
+        Ok(ID::new(self.user.id.to_string()))
     }
 
     fn field_name(&self, _: &Executor<'_, Context>) -> FieldResult<&String> {
@@ -196,8 +196,8 @@ impl UserFields for User {
 }
 
 impl CountryFields for Country {
-    fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<&i32> {
-        Ok(&self.country.id)
+    fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<ID> {
+        Ok(ID::new(format!("{}", self.country.id)))
     }
 
     fn field_name(&self, _executor: &Executor<'_, Context>) -> FieldResult<&String> {

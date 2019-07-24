@@ -9,7 +9,7 @@ type Query {
   userConnections(
     after: Cursor,
     first: Int = 20,
-    userId: Int!,
+    userId: ID!,
   ): UserConnection @juniper(ownership: "owned")
 }
 
@@ -18,13 +18,13 @@ type Mutation {
 }
 
 type User {
-  id: Int!
+  id: ID! @juniper(ownership: "owned")
   name: String!
   country: Country!
 }
 
 type Country {
-  id: Int!
+  id: ID! @juniper(ownership: "owned")
   name: String!
 }
 
