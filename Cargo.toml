@@ -17,4 +17,4 @@ juniper-eager-loading = "^0.2"
 
 [dev-dependencies]
 assert-json-diff = "1.0.0"
-diesel-factories = "0.1.0"
+diesel-factories = "1.0.0"
