@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![deny(unused_imports, dead_code, unused_variables)]
 
 #[macro_use]
 extern crate rocket;
@@ -15,7 +16,6 @@ mod tests;
 use crate::graphql::*;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use rocket::{response::content, Rocket, State};
-use serde_json::{json, Value};
 
 type DbConPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 type DbCon = r2d2::PooledConnection<ConnectionManager<PgConnection>>;

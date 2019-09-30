@@ -6,11 +6,13 @@ schema {
 type Query {
   users: [User!]! @juniper(ownership: "owned")
 
+  """
+  A paginated connection of all users
+  """
   userConnections(
     after: Cursor,
     first: Int = 20,
-    userId: ID!,
-  ): UserConnection @juniper(ownership: "owned")
+  ): UserConnection! @juniper(ownership: "owned")
 }
 
 type Mutation {

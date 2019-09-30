@@ -54,29 +54,14 @@ impl QueryFields for Query {
         trail: &QueryTrail<'_, UserConnection, Walked>,
         after: Option<Cursor>,
         first: i32,
-        user_id: ID,
-    ) -> FieldResult<Option<UserConnection>> {
-        use crate::schema::users;
+    ) -> FieldResult<UserConnection> {
         let con = &executor.context().db_con;
-
-        let user_id = user_id.parse::<i32>()?;
-        let user = users::table
-            .filter(users::id.eq(user_id))
-            .first::<models::User>(con)
-            .optional()?;
-
-        let user_connection = if let Some(user) = user {
-            Some(user_connections(user, after, first, trail, con)?)
-        } else {
-            None
-        };
-
+        let user_connection = user_connections(after, first, trail, con)?;
         Ok(user_connection)
     }
 }
 
 fn user_connections(
-    user: models::User,
     cursor: Option<Cursor>,
     page_size: i32,
     trail: &QueryTrail<'_, UserConnection, Walked>,
@@ -182,7 +167,7 @@ impl UserFields for User {
 
     fn field_country(
         &self,
-        executor: &Executor<'_, Context>,
+        _: &Executor<'_, Context>,
         _trail: &QueryTrail<'_, Country, Walked>,
     ) -> FieldResult<&Country> {
         Ok(self.country.try_unwrap()?)
