@@ -141,12 +141,6 @@ where
     Ok(users)
 }
 
-impl Clone for Cursor {
-    fn clone(&self) -> Self {
-        Cursor(self.0.clone())
-    }
-}
-
 pub struct Mutation;
 
 impl MutationFields for Mutation {
