@@ -78,8 +78,9 @@ fn user_connections(
         .expect("invalid cursor");
     let next_page_cursor = Cursor((page_number + 1).to_string());
 
-    let (user_models, total_count) = users::table
-        .select(users::all_columns)
+    let base_query = users::table.select(users::all_columns).order(users::id);
+
+    let (user_models, total_count) = base_query
         .paginate(page_number)
         .per_page(page_size)
         .load_and_count_pages::<models::User>(con)?;
@@ -98,11 +99,16 @@ fn user_connections(
         })
         .collect::<Vec<_>>();
 
-    // TODO
     let page_info = PageInfo {
         start_cursor: edges.first().map(|edge| edge.cursor.clone()),
         end_cursor: edges.last().map(|edge| edge.cursor.clone()),
-        has_next_page: false,
+        has_next_page: {
+            let next_page = base_query
+                .paginate(page_number + 1)
+                .per_page(1)
+                .load::<(models::User, i64)>(con)?;
+            !next_page.is_empty()
+        },
     };
 
     Ok(UserConnection {

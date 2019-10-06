@@ -2,12 +2,12 @@ use crate::{models::*, rocket, DbConPool};
 use assert_json_diff::{assert_json_eq, assert_json_include};
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use diesel_factories::{Association, Factory};
-use serde_json::{json, Value};
 use juniper::ID;
 use rocket::{
     http::{ContentType, Status},
     local::Client,
 };
+use serde_json::{json, Value};
 
 #[test]
 fn test_nothing_to_begin_with() {
@@ -110,6 +110,193 @@ fn test_loading_users_with_countries() {
         }),
         actual: json,
     );
+}
+
+#[test]
+fn test_paginating_users() {
+    let (pool, client) = setup();
+
+    let (user_1, user_2, user_3) = {
+        let con = pool.get().unwrap();
+        let user_1 = UserFactory::default().name("1").insert(&con);
+        let user_2 = UserFactory::default().name("2").insert(&con);
+        let user_3 = UserFactory::default().name("3").insert(&con);
+        (user_1, user_2, user_3)
+    };
+
+    let query = r#"
+        {
+            userConnections(first: 1) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+                pageInfo {
+                    startCursor
+                    endCursor
+                    hasNextPage
+                }
+                totalCount
+            }
+        }
+        "#;
+    let (json, status) = make_request(&client, query, None);
+
+    assert_eq!(Status::Ok, status);
+    assert_json_include!(
+        expected: json!({
+            "data": {
+                "userConnections": {
+                    "edges": [
+                        {
+                            "cursor": "2",
+                            "node": { "name": user_1.name },
+                        }
+                    ],
+                    "pageInfo": {
+                        "startCursor": "2",
+                        "endCursor": "2",
+                        "hasNextPage": true,
+                    },
+                    "totalCount": 3,
+                }
+            },
+        }),
+        actual: json.clone(),
+    );
+    let cursor = json["data"]["userConnections"]["pageInfo"]["endCursor"]
+        .as_str()
+        .unwrap();
+
+    let query = r#"
+        query Test($after: Cursor!) {
+            userConnections(first: 1, after: $after) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        name
+                    }
+                }
+                pageInfo {
+                    startCursor
+                    endCursor
+                    hasNextPage
+                }
+                totalCount
+            }
+        }
+        "#;
+    let vars = json!({ "after": cursor });
+    let (json, status) = make_request(&client, query, Some(vars));
+
+    assert_eq!(Status::Ok, status);
+    assert_json_include!(
+        expected: json!({
+            "data": {
+                "userConnections": {
+                    "edges": [
+                        {
+                            "cursor": "3",
+                            "node": { "name": user_2.name },
+                        }
+                    ],
+                    "pageInfo": {
+                        "startCursor": "3",
+                        "endCursor": "3",
+                        "hasNextPage": true,
+                    },
+                    "totalCount": 3,
+                }
+            },
+        }),
+        actual: json.clone(),
+    );
+    let cursor = json["data"]["userConnections"]["pageInfo"]["endCursor"]
+        .as_str()
+        .unwrap();
+
+    let vars = json!({ "after": cursor });
+    let (json, status) = make_request(&client, query, Some(vars));
+
+    assert_eq!(Status::Ok, status);
+    assert_json_include!(
+        expected: json!({
+            "data": {
+                "userConnections": {
+                    "edges": [
+                        {
+                            "cursor": "4",
+                            "node": { "name": user_3.name },
+                        }
+                    ],
+                    "pageInfo": {
+                        "startCursor": "4",
+                        "endCursor": "4",
+                        "hasNextPage": false,
+                    },
+                    "totalCount": 3,
+                }
+            },
+        }),
+        actual: json.clone(),
+    );
+    let cursor = json["data"]["userConnections"]["pageInfo"]["endCursor"]
+        .as_str()
+        .unwrap();
+
+    let vars = json!({ "after": cursor });
+    let (json, status) = make_request(&client, query, Some(vars));
+    assert_eq!(Status::Ok, status);
+    let edges = json["data"]["userConnections"]["edges"].as_array().unwrap();
+    assert_eq!(edges.len(), 0);
+}
+
+#[test]
+fn test_paginating_users_with_no_users() {
+    let (_pool, client) = setup();
+
+    let query = r#"
+        {
+            userConnections {
+                edges {
+                    cursor
+                    node {
+                        id
+                    }
+                }
+                pageInfo {
+                    startCursor
+                    endCursor
+                    hasNextPage
+                }
+            }
+        }
+        "#;
+
+    let (json, status) = make_request(&client, query, None);
+
+    assert_eq!(Status::Ok, status);
+    assert_json_include!(
+        expected: json!({
+            "data": {
+                "userConnections": {
+                    "edges": [],
+                    "pageInfo": {
+                        "startCursor": null,
+                        "endCursor": null,
+                        "hasNextPage": false,
+                    }
+                }
+            },
+        }),
+        actual: json.clone(),
+    );
+    let edges = json["data"]["userConnections"]["edges"].as_array().unwrap();
+    assert_eq!(edges.len(), 0);
 }
 
 #[derive(Clone, Factory)]
