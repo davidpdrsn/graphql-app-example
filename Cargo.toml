@@ -8,12 +8,12 @@ edition = "2018"
 rocket = "0.4.2"
 diesel = { version = "1.4.2", features = ["postgres", "r2d2"] }
 juniper = "0.14.0"
-juniper-from-schema = "^0.3"
+juniper-from-schema = "^0.4"
 juniper_rocket = "0.5"
 r2d2 = "0.8.5"
 serde_json = "1.0.41"
 dotenv = "0.14.1"
-juniper-eager-loading = "^0.2"
+juniper-eager-loading = "^0.3"
 
 [dev-dependencies]
 assert-json-diff = "1.0.0"

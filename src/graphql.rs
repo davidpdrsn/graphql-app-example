@@ -118,7 +118,7 @@ fn map_models_to_graphql_nodes<'a, T, M: Clone>(
     con: &PgConnection,
 ) -> Result<Vec<T>, diesel::result::Error>
 where
-    T: EagerLoadAllChildren<QueryTrail<'a, T, Walked>>
+    T: EagerLoadAllChildren
         + GraphqlNodeForModel<Model = M, Connection = PgConnection, Error = diesel::result::Error>,
 {
     let mut users = T::from_db_models(models);
