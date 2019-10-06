@@ -1,0 +1,3 @@
+[global.databases]
+master = { url = "postgres://localhost/graphql-app-example", pool_size = 10 }
+test = { url = "postgres://localhost/graphql-app-example-test", pool_size = 1 }

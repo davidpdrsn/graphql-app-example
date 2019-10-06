@@ -1,6 +1,6 @@
-use crate::{models::*, rocket, DbConPool};
+use crate::{models::*, DbCon};
 use assert_json_diff::{assert_json_eq, assert_json_include};
-use diesel::{prelude::*, r2d2::ConnectionManager};
+use diesel::prelude::*;
 use diesel_factories::{Association, Factory};
 use juniper::ID;
 use rocket::{
@@ -11,7 +11,7 @@ use serde_json::{json, Value};
 
 #[test]
 fn test_nothing_to_begin_with() {
-    let (_pool, client) = setup();
+    let client = setup();
 
     let query = "{ users { id name } }";
 
@@ -30,10 +30,10 @@ fn test_nothing_to_begin_with() {
 
 #[test]
 fn test_loading_user() {
-    let (pool, client) = setup();
+    let client = setup();
 
     let user = {
-        let con = pool.get().unwrap();
+        let con = get_db_con(&client);
         UserFactory::default().insert(&con)
         // We need the connection to be dropped here for the rocket app to have access to it
         // because our pool size is 1. So if we held onto the connection it wouldn't work.
@@ -68,10 +68,10 @@ fn test_loading_user() {
 
 #[test]
 fn test_loading_users_with_countries() {
-    let (pool, client) = setup();
+    let client = setup();
 
     let (user, country) = {
-        let con = pool.get().unwrap();
+        let con = get_db_con(&client);
         let country = CountryFactory::default().insert(&con);
         let user = UserFactory::default().country(&country).insert(&con);
         (user, country)
@@ -114,10 +114,10 @@ fn test_loading_users_with_countries() {
 
 #[test]
 fn test_paginating_users() {
-    let (pool, client) = setup();
+    let client = setup();
 
     let (user_1, user_2, user_3) = {
-        let con = pool.get().unwrap();
+        let con = get_db_con(&client);
         let user_1 = UserFactory::default().name("1").insert(&con);
         let user_2 = UserFactory::default().name("2").insert(&con);
         let user_3 = UserFactory::default().name("3").insert(&con);
@@ -257,7 +257,7 @@ fn test_paginating_users() {
 
 #[test]
 fn test_paginating_users_with_no_users() {
-    let (_pool, client) = setup();
+    let client = setup();
 
     let query = r#"
         {
@@ -337,15 +337,19 @@ impl Default for CountryFactory {
     }
 }
 
-fn setup() -> (DbConPool, Client) {
-    let db_pool = test_db_pool();
-    let con = db_pool.get().unwrap();
-    con.begin_test_transaction().unwrap();
+fn setup() -> Client {
+    let rocket = crate::rocket();
+    let con = DbCon::get_one(&rocket).expect("get db con");
+    con.begin_test_transaction()
+        .expect("begin test transaction");
+    drop(con);
 
-    let rocket = rocket(db_pool.clone());
-    let client = Client::new(rocket).unwrap();
+    let client = Client::new(rocket).expect("create test client");
+    client
+}
 
-    (db_pool, client)
+fn get_db_con(client: &Client) -> DbCon {
+    DbCon::get_one(client.rocket()).expect("get db con")
 }
 
 fn make_request(client: &Client, query: &str, variables: Option<Value>) -> (Value, Status) {
@@ -361,13 +365,4 @@ fn make_request(client: &Client, query: &str, variables: Option<Value>) -> (Valu
     let mut response = req.dispatch();
     let json = serde_json::from_str::<Value>(&response.body_string().unwrap()).unwrap();
     (json, response.status())
-}
-
-#[cfg(test)]
-fn test_db_pool() -> DbConPool {
-    let database_url = "postgres://localhost/graphql-app-example-test";
-    r2d2::Pool::builder()
-        .max_size(1)
-        .build(ConnectionManager::<PgConnection>::new(database_url))
-        .expect("failed to create db connection pool")
 }

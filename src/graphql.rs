@@ -1,19 +1,18 @@
-use crate::{models, DbCon, DbConPool};
-use diesel::prelude::*;
+use crate::{DbCon, models};
+use diesel::{pg::PgConnection, prelude::*};
 use juniper::{Executor, FieldResult, ID};
 use juniper_eager_loading::{prelude::*, *};
 use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
 use juniper_from_schema::graphql_schema_from_file;
 use rocket::{
-    http::Status,
     request::{self, FromRequest, Request},
-    Outcome, State,
+    Outcome,
 };
 
 graphql_schema_from_file!("schema.graphql");
 
 pub struct Context {
-    pub db_con: DbCon,
+    db_con: DbCon,
 }
 
 impl juniper::Context for Context {}
@@ -22,12 +21,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for Context {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Context, ()> {
-        let db_pool = request.guard::<State<DbConPool>>()?;
+        let db_con = request.guard::<DbCon>()?;
+        Outcome::Success(Context { db_con })
+    }
+}
 
-        match db_pool.get() {
-            Ok(db_con) => Outcome::Success(Context { db_con }),
-            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
-        }
+impl Context {
+    fn get_db(&self) -> &PgConnection {
+        &self.db_con.0
     }
 }
 
@@ -40,9 +41,9 @@ impl QueryFields for Query {
         trail: &QueryTrail<'_, User, Walked>,
     ) -> FieldResult<Vec<User>> {
         use crate::schema::users;
-        let con = &executor.context().db_con;
+        let con = &executor.context().get_db();
 
-        let user_models = users::table.load::<models::User>(con)?;
+        let user_models = users::table.load::<models::User>(*con)?;
         let users = map_models_to_graphql_nodes(&user_models, &trail, con)?;
 
         Ok(users)
@@ -55,7 +56,7 @@ impl QueryFields for Query {
         after: Option<Cursor>,
         first: i32,
     ) -> FieldResult<UserConnection> {
-        let con = &executor.context().db_con;
+        let con = &executor.context().get_db();
         let user_connection = user_connections(after, first, trail, con)?;
         Ok(user_connection)
     }
