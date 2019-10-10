@@ -361,7 +361,7 @@ dependencies = [
  "diesel-factories 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dotenv 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "juniper-eager-loading 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "juniper-eager-loading 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper-from-schema 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper_rocket 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.8.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -492,16 +492,16 @@ dependencies = [
 
 [[package]]
 name = "juniper-eager-loading"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "juniper-eager-loading-code-gen 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "juniper-eager-loading-code-gen 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper-from-schema 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "juniper-eager-loading-code-gen"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "darling 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1489,8 +1489,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum iovec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dbe6e417e7d0975db6512b90796e8ce223145ac4e33c377e4a42882a0e88bb08"
 "checksum itoa 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"
 "checksum juniper 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "58105039d583f910d2c2fe877a165a1ada2a5458353b9c5f4174943f1f9ecba3"
-"checksum juniper-eager-loading 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0466a6d00c9147032e8ced91257accfb8ed3332045d4f766747c65501a1016d1"
-"checksum juniper-eager-loading-code-gen 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "362b840a586a3f8845d1a6c690978a042e85d3cb189dbe24b5c724ab456a8503"
+"checksum juniper-eager-loading 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "000927f6665e34076c8f7233fb0887f23d124ecdaaa046e453aff884490d25f0"
+"checksum juniper-eager-loading-code-gen 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a93da94381eb1a36fd5e2b74941886a5532d83088f5d033b1dbcb5ede19ca326"
 "checksum juniper-from-schema 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b17191e5c6bbd2e792732358934621270caadbe67971ccac304813bf5dd2e029"
 "checksum juniper-from-schema-code-gen 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3d5b8c0a08a3d7c1db05f14e42b6d970fde5f9556519f2f04413d1182a28a2a1"
 "checksum juniper_codegen 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6d664b8e95b8c9e8f8067b14ccb48dc5d22a73b6a1c700bc052b5affe673fa4d"
