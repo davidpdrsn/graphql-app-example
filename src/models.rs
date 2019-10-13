@@ -3,7 +3,7 @@ pub mod pagination;
 use crate::schema::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use juniper_eager_loading::impl_load_from_for_diesel;
+use juniper_eager_loading::impl_load_from_for_diesel_pg;
 
 #[derive(Queryable, Debug, Clone)]
 pub struct User {
@@ -18,7 +18,7 @@ pub struct Country {
     pub name: String,
 }
 
-impl_load_from_for_diesel! {
+impl_load_from_for_diesel_pg! {
     (
         error = diesel::result::Error,
         connection = PgConnection,
