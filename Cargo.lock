@@ -222,7 +222,7 @@ dependencies = [
 
 [[package]]
 name = "diesel"
-version = "1.4.2"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -237,7 +237,7 @@ name = "diesel-factories"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "diesel 1.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel-factories-code-gen 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -357,7 +357,7 @@ name = "graphql-app-example"
 version = "0.1.0"
 dependencies = [
  "assert-json-diff 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "diesel 1.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel-factories 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dotenv 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1056,7 +1056,7 @@ name = "rocket_contrib"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "diesel 1.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify 4.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.8.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1461,7 +1461,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum devise 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "74e04ba2d03c5fa0d954c061fc8c9c288badadffc272ebb87679a89846de3ed3"
 "checksum devise_codegen 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "066ceb7928ca93a9bedc6d0e612a8a0424048b0ab1f75971b203d01420c055d7"
 "checksum devise_core 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cf41c59b22b5e3ec0ea55c7847e5f358d340f3a8d6d53a5cf4f1564967f96487"
-"checksum diesel 1.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "8d24935ba50c4a8dc375a0fd1f8a2ba6bdbdc4125713126a74b965d6a01a06d7"
+"checksum diesel 1.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "9d7cc03b910de9935007861dce440881f69102aaaedfd4bc5a6f40340ca5840c"
 "checksum diesel-factories 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "84fe52ea6df28bc4fa948315cfd0fd25c25a92a55d120afe61b383c58851648c"
 "checksum diesel-factories-code-gen 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f929ac49a9ef29f84fff13b6faf3f5abdc12584bea5aab6a3b28e18dcc24d1af"
 "checksum diesel_derives 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "62a27666098617d52c487a41f70de23d44a1dc1f3aa5877ceba2790fb1f1cab4"

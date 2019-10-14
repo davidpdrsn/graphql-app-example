@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.4.2"
-diesel = { version = "1.4.2", features = ["postgres", "r2d2"] }
+diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
 juniper = "0.14.0"
 juniper-from-schema = "^0.4"
 juniper_rocket = "0.5"
