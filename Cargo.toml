@@ -21,5 +21,5 @@ default-features = false
 features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
-assert-json-diff = "1.0.0"
+assert-json-diff = "1.0.1"
 diesel-factories = "1.0.0"
