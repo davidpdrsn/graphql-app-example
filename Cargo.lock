@@ -358,7 +358,7 @@ dependencies = [
  "juniper 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper-eager-loading 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper-from-schema 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "juniper_rocket 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "juniper_rocket 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2 0.8.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_contrib 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "juniper_rocket"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "juniper 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1442,7 +1442,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum juniper-from-schema 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "47d636f7fec075ef6e840f17211efa5ac64c05a2635e36c4706d8e7f21f834f7"
 "checksum juniper-from-schema-code-gen 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "e649da12ab5f491cd015c46ee50741e6e925412a48f7a69d9af30fc0ab092426"
 "checksum juniper_codegen 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "80936abdd4fbe3f9c5357512b507786858df917d0c3fa25bed13dc0c14f5cdd4"
-"checksum juniper_rocket 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "07dbac04c2f8762341feee40fd31e3ca1fa771d9699eb3f407b4e60e9bd4b3c4"
+"checksum juniper_rocket 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "abad766d29ad27bf4a262f5b2fcdfc8b3799c737626fa45647612cf77d458313"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 "checksum lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
