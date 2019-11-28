@@ -13,7 +13,7 @@ juniper_rocket = "0.5"
 r2d2 = "0.8.6"
 serde_json = "1.0.41"
 dotenv = "0.15.0"
-juniper-eager-loading = "^0.4"
+juniper-eager-loading = "^0.5"
 
 [dependencies.rocket_contrib]
 version = "0.4.2"
