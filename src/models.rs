@@ -1,5 +1,6 @@
 pub mod pagination;
 
+use crate::graphql::Context;
 use crate::schema::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -21,7 +22,7 @@ pub struct Country {
 impl_load_from_for_diesel_pg! {
     (
         error = diesel::result::Error,
-        connection = PgConnection,
+        context = Context,
     ) => {
         i32 -> (users, User),
         i32 -> (countries, Country),

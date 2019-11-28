@@ -1,5 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#![deny(unused_imports, dead_code, unused_variables)]
+// #![deny(unused_imports, dead_code, unused_variables)]
 
 #[macro_use]
 extern crate rocket;

@@ -1,4 +1,4 @@
-use crate::{DbCon, models};
+use crate::{models, DbCon};
 use diesel::{pg::PgConnection, prelude::*};
 use juniper::{Executor, FieldResult, ID};
 use juniper_eager_loading::{prelude::*, *};
@@ -27,7 +27,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Context {
 }
 
 impl Context {
-    fn get_db(&self) -> &PgConnection {
+    pub fn db(&self) -> &PgConnection {
         &self.db_con.0
     }
 }
@@ -41,10 +41,11 @@ impl QueryFields for Query {
         trail: &QueryTrail<'_, User, Walked>,
     ) -> FieldResult<Vec<User>> {
         use crate::schema::users;
-        let con = &executor.context().get_db();
+        let ctx = &executor.context();
+        let con = &ctx.db();
 
         let user_models = users::table.load::<models::User>(*con)?;
-        let users = map_models_to_graphql_nodes(&user_models, &trail, con)?;
+        let users = map_models_to_graphql_nodes(&user_models, &trail, ctx)?;
 
         Ok(users)
     }
@@ -56,8 +57,8 @@ impl QueryFields for Query {
         after: Option<Cursor>,
         first: i32,
     ) -> FieldResult<UserConnection> {
-        let con = &executor.context().get_db();
-        let user_connection = user_connections(after, first, trail, con)?;
+        let ctx = &executor.context();
+        let user_connection = user_connections(after, first, trail, ctx)?;
         Ok(user_connection)
     }
 }
@@ -66,9 +67,11 @@ fn user_connections(
     cursor: Option<Cursor>,
     page_size: i32,
     trail: &QueryTrail<'_, UserConnection, Walked>,
-    con: &PgConnection,
+    ctx: &Context,
 ) -> QueryResult<UserConnection> {
     use crate::{models::pagination::*, schema::users};
+
+    let con = &ctx.db();
 
     let page_size = i64::from(page_size);
 
@@ -87,7 +90,7 @@ fn user_connections(
         .load_and_count_pages::<models::User>(con)?;
 
     let users = if let Some(user_trail) = trail.edges().node().walk() {
-        map_models_to_graphql_nodes(&user_models, &user_trail, con)?
+        map_models_to_graphql_nodes(&user_models, &user_trail, ctx)?
     } else {
         vec![]
     };
@@ -122,14 +125,14 @@ fn user_connections(
 fn map_models_to_graphql_nodes<'a, T, M: Clone>(
     models: &[M],
     trail: &QueryTrail<'a, T, Walked>,
-    con: &PgConnection,
+    ctx: &Context,
 ) -> Result<Vec<T>, diesel::result::Error>
 where
     T: EagerLoadAllChildren
-        + GraphqlNodeForModel<Model = M, Connection = PgConnection, Error = diesel::result::Error>,
+        + GraphqlNodeForModel<Model = M, Context = Context, Error = diesel::result::Error>,
 {
     let mut users = T::from_db_models(models);
-    T::eager_load_all_children_for_each(&mut users, models, con, trail)?;
+    T::eager_load_all_children_for_each(&mut users, models, ctx, trail)?;
     Ok(users)
 }
 
@@ -143,9 +146,9 @@ impl MutationFields for Mutation {
 
 #[derive(Clone, Debug, EagerLoading)]
 #[eager_loading(
-    model = "models::User",
-    error = "diesel::result::Error",
-    connection = "PgConnection"
+    model = models::User,
+    error = diesel::result::Error,
+    context = Context
 )]
 pub struct User {
     user: models::User,
@@ -155,9 +158,9 @@ pub struct User {
 
 #[derive(Clone, Debug, EagerLoading)]
 #[eager_loading(
-    model = "models::Country",
-    error = "diesel::result::Error",
-    connection = "PgConnection"
+    model = models::Country,
+    error = diesel::result::Error,
+    context = Context
 )]
 pub struct Country {
     country: models::Country,
