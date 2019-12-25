@@ -10,7 +10,7 @@ diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
 juniper = "0.14.1"
 juniper-from-schema = "^0.5"
 juniper_rocket = "0.5"
-r2d2 = "0.8.7"
+r2d2 = "0.8.8"
 serde_json = "1.0.44"
 dotenv = "0.15.0"
 juniper-eager-loading = "^0.5"
