@@ -5,7 +5,7 @@ authors = ["David Pedersen <david.pdrsn@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = "0.4.2"
+rocket = "0.4.3"
 diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
 juniper = "0.14.2"
 juniper-from-schema = "^0.5"
