@@ -11,3 +11,6 @@ diesel migration run
 dropdb graphql-app-example-test || true
 createdb graphql-app-example-test
 DATABASE_URL=postgres://localhost/graphql-app-example-test diesel migration run
+
+cargo build
+cargo test
