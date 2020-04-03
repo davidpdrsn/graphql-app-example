@@ -2,7 +2,6 @@ pub mod pagination;
 
 use crate::graphql::Context;
 use crate::schema::*;
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use juniper_eager_loading::impl_load_from_for_diesel_pg;
 

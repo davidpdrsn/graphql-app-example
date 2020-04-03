@@ -5,21 +5,21 @@ authors = ["David Pedersen <david.pdrsn@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = "0.4.4"
-diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
-juniper = "0.14.2"
-juniper-from-schema = "^0.5"
+rocket = "0.4"
+diesel = { version = "1", features = ["postgres", "r2d2"] }
+juniper = "0.14"
+juniper-from-schema = "0.5"
 juniper_rocket = "0.5"
-r2d2 = "0.8.8"
-serde_json = "1.0.48"
-dotenv = "0.15.0"
-juniper-eager-loading = "^0.5"
+r2d2 = "0.8"
+serde_json = "1"
+dotenv = "0.15"
+juniper-eager-loading = "0.5"
 
 [dependencies.rocket_contrib]
-version = "0.4.4"
+version = "0.4"
 default-features = false
 features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
-assert-json-diff = "1.0.1"
-diesel-factories = "1.0.0"
+assert-json-diff = "1"
+diesel-factories = "1"
