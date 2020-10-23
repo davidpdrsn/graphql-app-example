@@ -1,8 +1,11 @@
-use crate::{models, DbCon};
+use crate::{
+    models::{Country, User},
+    DbCon,
+};
 use diesel::{pg::PgConnection, prelude::*};
 use juniper::{Executor, FieldResult, ID};
-use juniper_eager_loading::{prelude::*, *};
-use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
+// use juniper_eager_loading::{prelude::*, *};
+// use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
 use juniper_from_schema::graphql_schema_from_file;
 use rocket::{
     request::{self, FromRequest, Request},
@@ -38,14 +41,14 @@ impl QueryFields for Query {
     fn field_users(
         &self,
         executor: &Executor<'_, Context>,
-        trail: &QueryTrail<'_, User, Walked>,
+        _trail: &QueryTrail<'_, User, Walked>,
     ) -> FieldResult<Vec<User>> {
         use crate::schema::users;
         let ctx = &executor.context();
         let con = &ctx.db();
 
-        let user_models = users::table.load::<models::User>(*con)?;
-        let users = map_models_to_graphql_nodes(&user_models, &trail, ctx)?;
+        let users = users::table.load::<User>(*con)?;
+        // let users = map_models_to_graphql_nodes(&user_models, &trail, ctx)?;
 
         Ok(users)
     }
@@ -66,7 +69,7 @@ impl QueryFields for Query {
 fn user_connections(
     cursor: Option<Cursor>,
     page_size: i32,
-    trail: &QueryTrail<'_, UserConnection, Walked>,
+    _trail: &QueryTrail<'_, UserConnection, Walked>,
     ctx: &Context,
 ) -> QueryResult<UserConnection> {
     use crate::{models::pagination::*, schema::users};
@@ -84,16 +87,16 @@ fn user_connections(
 
     let base_query = users::table.select(users::all_columns).order(users::id);
 
-    let (user_models, total_count) = base_query
+    let (users, total_count) = base_query
         .paginate(page_number)
         .per_page(page_size)
-        .load_and_count_pages::<models::User>(con)?;
+        .load_and_count_pages::<User>(con)?;
 
-    let users = if let Some(user_trail) = trail.edges().node().walk() {
-        map_models_to_graphql_nodes(&user_models, &user_trail, ctx)?
-    } else {
-        vec![]
-    };
+    // let users = if let Some(user_trail) = trail.edges().node().walk() {
+    //     map_models_to_graphql_nodes(&user_models, &user_trail, ctx)?
+    // } else {
+    //     vec![]
+    // };
 
     let edges = users
         .into_iter()
@@ -110,7 +113,7 @@ fn user_connections(
             let next_page = base_query
                 .paginate(page_number + 1)
                 .per_page(1)
-                .load::<(models::User, i64)>(con)?;
+                .load::<(User, i64)>(con)?;
             !next_page.is_empty()
         },
     };
@@ -122,19 +125,19 @@ fn user_connections(
     })
 }
 
-fn map_models_to_graphql_nodes<'a, T, M: Clone>(
-    models: &[M],
-    trail: &QueryTrail<'a, T, Walked>,
-    ctx: &Context,
-) -> Result<Vec<T>, diesel::result::Error>
-where
-    T: EagerLoadAllChildren
-        + GraphqlNodeForModel<Model = M, Context = Context, Error = diesel::result::Error>,
-{
-    let mut users = T::from_db_models(models);
-    T::eager_load_all_children_for_each(&mut users, models, ctx, trail)?;
-    Ok(users)
-}
+// fn map_models_to_graphql_nodes<'a, T, M: Clone>(
+//     models: &[M],
+//     trail: &QueryTrail<'a, T, Walked>,
+//     ctx: &Context,
+// ) -> Result<Vec<T>, diesel::result::Error>
+// where
+//     T: EagerLoadAllChildren
+//         + GraphqlNodeForModel<Model = M, Context = Context, Error = diesel::result::Error>,
+// {
+//     let mut users = T::from_db_models(models);
+//     T::eager_load_all_children_for_each(&mut users, models, ctx, trail)?;
+//     Ok(users)
+// }
 
 pub struct Mutation;
 
@@ -144,53 +147,39 @@ impl MutationFields for Mutation {
     }
 }
 
-#[derive(Clone, Debug, EagerLoading)]
-#[eager_loading(
-    model = models::User,
-    error = diesel::result::Error,
-    context = Context
-)]
-pub struct User {
-    user: models::User,
-    #[has_one(default)]
-    country: HasOne<Country>,
-}
-
-#[derive(Clone, Debug, EagerLoading)]
-#[eager_loading(
-    model = models::Country,
-    error = diesel::result::Error,
-    context = Context
-)]
-pub struct Country {
-    country: models::Country,
-}
-
 impl UserFields for User {
     fn field_id(&self, _: &Executor<'_, Context>) -> FieldResult<ID> {
-        Ok(ID::new(self.user.id.to_string()))
+        Ok(ID::new(self.id.to_string()))
     }
 
     fn field_name(&self, _: &Executor<'_, Context>) -> FieldResult<&String> {
-        Ok(&self.user.name)
+        Ok(&self.name)
     }
 
     fn field_country(
         &self,
-        _: &Executor<'_, Context>,
+        executor: &Executor<'_, Context>,
         _trail: &QueryTrail<'_, Country, Walked>,
-    ) -> FieldResult<&Country> {
-        Ok(self.country.try_unwrap()?)
+    ) -> FieldResult<Country> {
+        use crate::schema::countries;
+        let ctx = &executor.context();
+        let con = &ctx.db();
+
+        let country = countries::table
+            .filter(countries::id.eq(self.country_id))
+            .first::<Country>(*con)?;
+
+        Ok(country)
     }
 }
 
 impl CountryFields for Country {
     fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<ID> {
-        Ok(ID::new(format!("{}", self.country.id)))
+        Ok(ID::new(format!("{}", self.id)))
     }
 
     fn field_name(&self, _executor: &Executor<'_, Context>) -> FieldResult<&String> {
-        Ok(&self.country.name)
+        Ok(&self.name)
     }
 }
 

@@ -344,8 +344,7 @@ fn setup() -> Client {
         .expect("begin test transaction");
     drop(con);
 
-    let client = Client::new(rocket).expect("create test client");
-    client
+    Client::new(rocket).expect("create test client")
 }
 
 fn get_db_con(client: &Client) -> DbCon {
