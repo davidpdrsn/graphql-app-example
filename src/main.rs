@@ -16,6 +16,7 @@ mod schema;
 mod tests;
 
 use crate::graphql::*;
+use juniper::EmptySubscription;
 use rocket::{response::content, Rocket, State};
 
 #[cfg(not(test))]
@@ -28,7 +29,7 @@ struct DbCon(diesel::PgConnection);
 
 #[get("/graphiql")]
 fn graphiql() -> content::Html<String> {
-    juniper_rocket::graphiql_source("/graphql")
+    juniper_rocket::graphiql_source("/graphql", None)
 }
 
 #[get("/graphql?<request>")]
@@ -37,7 +38,7 @@ fn get_graphql_handler(
     request: juniper_rocket::GraphQLRequest,
     schema: State<Schema>,
 ) -> juniper_rocket::GraphQLResponse {
-    request.execute(&schema, &context)
+    request.execute_sync(&schema, &context)
 }
 
 #[post("/graphql", data = "<request>")]
@@ -46,7 +47,7 @@ fn post_graphql_handler(
     request: juniper_rocket::GraphQLRequest,
     schema: State<Schema>,
 ) -> juniper_rocket::GraphQLResponse {
-    request.execute(&schema, &context)
+    request.execute_sync(&schema, &context)
 }
 
 fn main() {
@@ -56,7 +57,7 @@ fn main() {
 
 fn rocket() -> Rocket {
     rocket::ignite()
-        .manage(Schema::new(Query, Mutation))
+        .manage(Schema::new(Query, Mutation, EmptySubscription::new()))
         .mount(
             "/",
             routes![graphiql, get_graphql_handler, post_graphql_handler],

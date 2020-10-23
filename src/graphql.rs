@@ -1,8 +1,10 @@
+#![allow(unused_braces, clippy::unnecessary_lazy_evaluations)]
+
 use crate::{
     models::{Country, User},
     DbCon,
 };
-use diesel::{pg::PgConnection, prelude::*};
+use diesel::prelude::*;
 use juniper::{Executor, FieldResult, ID};
 // use juniper_eager_loading::{prelude::*, *};
 // use juniper_eager_loading::{EagerLoadAllChildren, GraphqlNodeForModel};
@@ -11,11 +13,12 @@ use rocket::{
     request::{self, FromRequest, Request},
     Outcome,
 };
+use std::sync::{Arc, Mutex};
 
 graphql_schema_from_file!("schema.graphql");
 
 pub struct Context {
-    db_con: DbCon,
+    db_con: Arc<Mutex<DbCon>>,
 }
 
 impl juniper::Context for Context {}
@@ -25,13 +28,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for Context {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Context, ()> {
         let db_con = request.guard::<DbCon>()?;
-        Outcome::Success(Context { db_con })
-    }
-}
-
-impl Context {
-    pub fn db(&self) -> &PgConnection {
-        &self.db_con.0
+        Outcome::Success(Context {
+            db_con: Arc::new(Mutex::new(db_con)),
+        })
     }
 }
 
@@ -40,14 +39,14 @@ pub struct Query;
 impl QueryFields for Query {
     fn field_users(
         &self,
-        executor: &Executor<'_, Context>,
-        _trail: &QueryTrail<'_, User, Walked>,
+        executor: &Executor<Context>,
+        _trail: &QueryTrail<User, Walked>,
     ) -> FieldResult<Vec<User>> {
         use crate::schema::users;
         let ctx = &executor.context();
-        let con = &ctx.db();
+        let con = ctx.db_con.lock().unwrap();
 
-        let users = users::table.load::<User>(*con)?;
+        let users = users::table.load::<User>(&**con)?;
         // let users = map_models_to_graphql_nodes(&user_models, &trail, ctx)?;
 
         Ok(users)
@@ -55,8 +54,8 @@ impl QueryFields for Query {
 
     fn field_user_connections(
         &self,
-        executor: &Executor<'_, Context>,
-        trail: &QueryTrail<'_, UserConnection, Walked>,
+        executor: &Executor<Context>,
+        trail: &QueryTrail<UserConnection, Walked>,
         after: Option<Cursor>,
         first: i32,
     ) -> FieldResult<UserConnection> {
@@ -74,7 +73,7 @@ fn user_connections(
 ) -> QueryResult<UserConnection> {
     use crate::{models::pagination::*, schema::users};
 
-    let con = &ctx.db();
+    let con = ctx.db_con.lock().unwrap();
 
     let page_size = i64::from(page_size);
 
@@ -90,7 +89,7 @@ fn user_connections(
     let (users, total_count) = base_query
         .paginate(page_number)
         .per_page(page_size)
-        .load_and_count_pages::<User>(con)?;
+        .load_and_count_pages::<User>(&**con)?;
 
     // let users = if let Some(user_trail) = trail.edges().node().walk() {
     //     map_models_to_graphql_nodes(&user_models, &user_trail, ctx)?
@@ -113,7 +112,7 @@ fn user_connections(
             let next_page = base_query
                 .paginate(page_number + 1)
                 .per_page(1)
-                .load::<(User, i64)>(con)?;
+                .load::<(User, i64)>(&**con)?;
             !next_page.is_empty()
         },
     };
@@ -142,43 +141,43 @@ fn user_connections(
 pub struct Mutation;
 
 impl MutationFields for Mutation {
-    fn field_noop(&self, _executor: &Executor<'_, Context>) -> FieldResult<&bool> {
+    fn field_noop(&self, _executor: &Executor<Context>) -> FieldResult<&bool> {
         Ok(&true)
     }
 }
 
 impl UserFields for User {
-    fn field_id(&self, _: &Executor<'_, Context>) -> FieldResult<ID> {
+    fn field_id(&self, _: &Executor<Context>) -> FieldResult<ID> {
         Ok(ID::new(self.id.to_string()))
     }
 
-    fn field_name(&self, _: &Executor<'_, Context>) -> FieldResult<&String> {
+    fn field_name(&self, _: &Executor<Context>) -> FieldResult<&String> {
         Ok(&self.name)
     }
 
     fn field_country(
         &self,
-        executor: &Executor<'_, Context>,
-        _trail: &QueryTrail<'_, Country, Walked>,
+        executor: &Executor<Context>,
+        _trail: &QueryTrail<Country, Walked>,
     ) -> FieldResult<Country> {
         use crate::schema::countries;
         let ctx = &executor.context();
-        let con = &ctx.db();
+        let con = ctx.db_con.lock().unwrap();
 
         let country = countries::table
             .filter(countries::id.eq(self.country_id))
-            .first::<Country>(*con)?;
+            .first::<Country>(&**con)?;
 
         Ok(country)
     }
 }
 
 impl CountryFields for Country {
-    fn field_id(&self, _executor: &Executor<'_, Context>) -> FieldResult<ID> {
+    fn field_id(&self, _executor: &Executor<Context>) -> FieldResult<ID> {
         Ok(ID::new(format!("{}", self.id)))
     }
 
-    fn field_name(&self, _executor: &Executor<'_, Context>) -> FieldResult<&String> {
+    fn field_name(&self, _executor: &Executor<Context>) -> FieldResult<&String> {
         Ok(&self.name)
     }
 }
@@ -190,15 +189,15 @@ pub struct PageInfo {
 }
 
 impl PageInfoFields for PageInfo {
-    fn field_start_cursor(&self, _: &Executor<'_, Context>) -> FieldResult<&Option<Cursor>> {
+    fn field_start_cursor(&self, _: &Executor<Context>) -> FieldResult<&Option<Cursor>> {
         Ok(&self.start_cursor)
     }
 
-    fn field_end_cursor(&self, _: &Executor<'_, Context>) -> FieldResult<&Option<Cursor>> {
+    fn field_end_cursor(&self, _: &Executor<Context>) -> FieldResult<&Option<Cursor>> {
         Ok(&self.end_cursor)
     }
 
-    fn field_has_next_page(&self, _: &Executor<'_, Context>) -> FieldResult<&bool> {
+    fn field_has_next_page(&self, _: &Executor<Context>) -> FieldResult<&bool> {
         Ok(&self.has_next_page)
     }
 }
@@ -212,21 +211,21 @@ pub struct UserConnection {
 impl UserConnectionFields for UserConnection {
     fn field_edges(
         &self,
-        _: &Executor<'_, Context>,
-        _: &QueryTrail<'_, UserEdge, Walked>,
+        _: &Executor<Context>,
+        _: &QueryTrail<UserEdge, Walked>,
     ) -> FieldResult<&Vec<UserEdge>> {
         Ok(&self.edges)
     }
 
     fn field_page_info(
         &self,
-        _: &Executor<'_, Context>,
-        _: &QueryTrail<'_, PageInfo, Walked>,
+        _: &Executor<Context>,
+        _: &QueryTrail<PageInfo, Walked>,
     ) -> FieldResult<&PageInfo> {
         Ok(&self.page_info)
     }
 
-    fn field_total_count(&self, _: &Executor<'_, Context>) -> FieldResult<&i32> {
+    fn field_total_count(&self, _: &Executor<Context>) -> FieldResult<&i32> {
         Ok(&self.total_count)
     }
 }
@@ -241,13 +240,13 @@ pub type UserEdge = Edge<User>;
 impl UserEdgeFields for UserEdge {
     fn field_node(
         &self,
-        _: &Executor<'_, Context>,
-        _: &QueryTrail<'_, User, Walked>,
+        _: &Executor<Context>,
+        _: &QueryTrail<User, Walked>,
     ) -> FieldResult<&User> {
         Ok(&self.node)
     }
 
-    fn field_cursor(&self, _: &Executor<'_, Context>) -> FieldResult<&Cursor> {
+    fn field_cursor(&self, _: &Executor<Context>) -> FieldResult<&Cursor> {
         Ok(&self.cursor)
     }
 }
