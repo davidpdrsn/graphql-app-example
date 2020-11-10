@@ -301,9 +301,9 @@ fn test_paginating_users_with_no_users() {
 
 #[derive(Clone, Factory)]
 #[factory(
-    model = "User",
-    table = "crate::schema::users",
-    connection = "PgConnection"
+    model = User,
+    table = crate::schema::users,
+    connection = PgConnection
 )]
 struct UserFactory<'a> {
     pub name: String,
@@ -321,9 +321,9 @@ impl Default for UserFactory<'_> {
 
 #[derive(Clone, Factory)]
 #[factory(
-    model = "Country",
-    table = "crate::schema::countries",
-    connection = "PgConnection"
+    model = Country,
+    table = crate::schema::countries,
+    connection = PgConnection
 )]
 struct CountryFactory {
     pub name: String,
@@ -344,8 +344,7 @@ fn setup() -> Client {
         .expect("begin test transaction");
     drop(con);
 
-    let client = Client::new(rocket).expect("create test client");
-    client
+    Client::new(rocket).expect("create test client")
 }
 
 fn get_db_con(client: &Client) -> DbCon {
