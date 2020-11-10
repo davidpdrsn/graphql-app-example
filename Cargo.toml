@@ -22,4 +22,4 @@ features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
 assert-json-diff = "1"
-diesel-factories = "1"
+diesel-factories = "2"
