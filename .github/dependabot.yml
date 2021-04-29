@@ -1,0 +1,30 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: serde_json
+    versions:
+    - 1.0.61
+    - 1.0.62
+    - 1.0.63
+  - dependency-name: juniper_rocket
+    versions:
+    - 0.6.1
+    - 0.6.2
+  - dependency-name: juniper
+    versions:
+    - 0.15.3
+  - dependency-name: assert-json-diff
+    versions:
+    - 2.0.0
+  - dependency-name: rocket_contrib
+    versions:
+    - 0.4.6
+  - dependency-name: rocket
+    versions:
+    - 0.4.6
